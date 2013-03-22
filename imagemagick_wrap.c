@@ -211,6 +211,56 @@ im_readimage(value input_image_name)
     CAMLreturn( image_bloc );
 }
 /* }}} */
+/* {{{ im_blobtoimage() */
+CAMLprim value
+im_blobtoimage(value blob_data)
+{
+    CAMLparam1(blob_data);
+
+    CAMLlocal1(image_bloc);
+
+    ExceptionInfo
+        exception;
+
+    ImageInfo
+        *image_info;
+
+
+    image_bloc = alloc_final(2, (*finalize_image), sizeof(Image), MAX_AMOUNT);  /* finalize_image() */
+
+    if (IsMagickInstantiated() == MagickFalse) {
+        MagickCoreGenesis(getenv("PWD"), MagickTrue);
+    }
+
+    GetExceptionInfo(&exception);
+    image_info = CloneImageInfo((ImageInfo *) NULL);
+
+    Field(image_bloc,1) = (value) BlobToImage(
+        image_info,
+        (void *)String_val(blob_data),
+        caml_string_length(blob_data),
+        &exception);
+
+    DestroyImageInfo(image_info);
+
+    if (exception.severity != UndefinedException) {
+        if ( (Image *)Field(image_bloc,1) != (Image *) NULL) {
+            DestroyImage((Image *) Field(image_bloc,1));  /* TODO: test me */
+        }
+        failwith( exception.reason );
+        /* @TODO  exception.description */
+    }
+
+    DestroyExceptionInfo(&exception);
+
+    if ((Image *) Field(image_bloc,1) == (Image *) NULL) {
+        /* exit(1) ; */
+        failwith("blob_to_image failed");
+    }
+
+    CAMLreturn( image_bloc );
+}
+/* }}} */
 /* {{{ im_getimagecanvas() */
 CAMLprim value
 im_getimagecanvas(value width, value height, value color)
@@ -6663,13 +6713,13 @@ void really_putblock (struct channel *, char *, long);
  *   *ImagesToBlob(const ImageInfo *, Image *, size_t *, ExceptionInfo *);
  */
 
-/* {{{ imper_imagetoblob_stdout() 
+/* {{{ imper_imagetoblob_channel() 
  *
  * unsigned char *ImageToBlob(const ImageInfo *image_info, Image *image,
  *                     size_t *length, ExceptionInfo *exception)
  */
 CAMLprim value
-imper_imagetoblob_channel_jpeg(value image_bloc, value chan)
+imper_imagetoblob_channel(value image_bloc, value chan)
 {
     CAMLparam2(image_bloc, chan);
 
@@ -6687,8 +6737,6 @@ imper_imagetoblob_channel_jpeg(value image_bloc, value chan)
 
     GetExceptionInfo(&exception);
     image_info = CloneImageInfo((ImageInfo *) NULL) ;
-
-    strcpy(((Image *) Field(image_bloc,1))->magick, "JPEG");
 
     blob_data = ImageToBlob(
                     image_info,
@@ -6738,29 +6786,14 @@ imper_imagetoblob_bytes(value image_bloc)
                     &exception );
 
     if (exception.severity != UndefinedException) {
-
         failwith( exception.reason );
     }
+
+    byte_array = caml_alloc_string(blob_size);
+    memcpy( String_val(byte_array), blob_data, blob_size );
+
     DestroyImageInfo(image_info);
     DestroyExceptionInfo(&exception);
-
-
-    byte_array = alloc_tuple(blob_size);
-
-    unsigned long blob_len;
-
-    puts(" A"); fflush(stdout);
-    blob_len = blob_size;
-    puts(" B"); fflush(stdout);
-    printf(" blob-size = '%lu'\n", blob_len); fflush(stdout);
-    puts(" C"); fflush(stdout);
-
-    unsigned long i;
-    for (i=0; i < blob_len; i++) {
-        printf("."); fflush(stdout);
-        Store_field(byte_array, i, Val_int((unsigned int) blob_data[i]));
-    }
-    puts("\n D"); fflush(stdout);
 
     CAMLreturn( byte_array );
 }

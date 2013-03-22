@@ -2,6 +2,7 @@ external sizeof_quantum : unit -> int = "im_sizeof_quantum"
 external sizeof_quantum_bit : unit -> int = "im_sizeof_quantum_bit"
 type image_handle
 external read_image : filename:string -> image_handle = "im_readimage"
+external blob_to_image : string -> image_handle = "im_blobtoimage"
 external get_canvas : width:int -> height:int -> color:string -> image_handle
   = "im_getimagecanvas"
 external create_image :
@@ -11,10 +12,9 @@ external clone_image : image_handle -> image_handle = "im_cloneimage"
 external write_image : image_handle -> filename:string -> unit
   = "im_writeimage"
 external display : image_handle -> unit = "im_displayimages"
-external image_to_channel_jpeg : image_handle -> out_channel -> unit
-  = "imper_imagetoblob_channel_jpeg"
-external blob_of_image : image_handle -> int list = "imper_imagetoblob_bytes"
-val dump_to_stdout : image_handle -> unit
+external image_to_channel : image_handle -> out_channel -> unit
+  = "imper_imagetoblob_channel"
+external blob_of_image : image_handle -> string = "imper_imagetoblob_bytes"
 external get_image_width : image_handle -> int = "imper_getimagewidth"
 external get_image_height : image_handle -> int = "imper_getimageheight"
 external get_image_depth : image_handle -> int = "imper_getimagedepth"

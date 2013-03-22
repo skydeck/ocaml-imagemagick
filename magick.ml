@@ -42,6 +42,8 @@ type image_handle
 
 external read_image  : filename:string -> image_handle  = "im_readimage"
 
+external blob_to_image : string -> image_handle = "im_blobtoimage"
+
 (* external freeimage : image_handle -> unit  = "imper_freeimage" *)
 
 (* external newmagickimage : int -> int -> int -> int -> int -> int -> image_handle
@@ -61,17 +63,8 @@ external display : image_handle -> unit  = "im_displayimages"
 
 (* blobs *)
 
-external image_to_channel_jpeg : image_handle -> out_channel -> unit  = "imper_imagetoblob_channel_jpeg"
-external blob_of_image : image_handle -> int list  = "imper_imagetoblob_bytes"
-
-
-let dump_to_stdout t_img =
-  let rec dumper = function
-    oo, [] -> close_out oo
-  | oo, b::l -> begin output_byte oo b; dumper(oo,l) end
-  in
-  dumper(stdout, blob_of_image t_img)
-;;
+external image_to_channel : image_handle -> out_channel -> unit  = "imper_imagetoblob_channel"
+external blob_of_image : image_handle -> string  = "imper_imagetoblob_bytes"
 
 
 (* get infos on images *)
