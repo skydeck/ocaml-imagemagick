@@ -11,7 +11,8 @@ external clone_image : image_handle -> image_handle = "im_cloneimage"
 external write_image : image_handle -> filename:string -> unit
   = "im_writeimage"
 external display : image_handle -> unit = "im_displayimages"
-external image_to_stdout : image_handle -> unit = "imper_imagetoblob_stdout"
+external image_to_channel_jpeg : image_handle -> out_channel -> unit
+  = "imper_imagetoblob_channel_jpeg"
 external blob_of_image : image_handle -> int list = "imper_imagetoblob_bytes"
 val dump_to_stdout : image_handle -> unit
 external get_image_width : image_handle -> int = "imper_getimagewidth"

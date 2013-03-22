@@ -61,7 +61,7 @@ external display : image_handle -> unit  = "im_displayimages"
 
 (* blobs *)
 
-external image_to_stdout : image_handle -> unit    = "imper_imagetoblob_stdout"
+external image_to_channel_jpeg : image_handle -> out_channel -> unit  = "imper_imagetoblob_channel_jpeg"
 external blob_of_image : image_handle -> int list  = "imper_imagetoblob_bytes"
 
 
@@ -299,17 +299,17 @@ let channel_type_of_string' str =
 
 let string_of_channel_type = function
   | Undefined_Channel -> "undefined"
-  | Red               -> "red"      
-  | Gray              -> "gray"     
-  | Cyan              -> "cyan"     
-  | Green             -> "green"    
-  | Magenta           -> "magenta"  
-  | Blue              -> "blue"     
-  | Yellow            -> "yellow"   
-  | Alpha             -> "alpha"    
-  | Opacity           -> "opacity"  
-  | Black             -> "black"    
-  | Index             -> "index"    
+  | Red               -> "red"
+  | Gray              -> "gray"
+  | Cyan              -> "cyan"
+  | Green             -> "green"
+  | Magenta           -> "magenta"
+  | Blue              -> "blue"
+  | Yellow            -> "yellow"
+  | Alpha             -> "alpha"
+  | Opacity           -> "opacity"
+  | Black             -> "black"
+  | Index             -> "index"
   | All_Channels      -> "all"
   | Default_Channels  -> "default"
 

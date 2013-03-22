@@ -6648,6 +6648,13 @@ imper_appendimages(
 
 /* {{{ ====  BLOBS  ==== */
 
+/* Taken from the ocaml source... */
+struct channel;
+void really_putblock (struct channel *, char *, long);
+
+/* Extract a struct channel * from the heap object representing it */
+#define Channel(v) (*((struct channel **) (Data_custom_val(v))))
+
 /*
  * extern MagickExport unsigned char
  *   *FileToBlob(const char *, const size_t,size_t *, ExceptionInfo *),
@@ -6662,9 +6669,9 @@ imper_appendimages(
  *                     size_t *length, ExceptionInfo *exception)
  */
 CAMLprim value
-imper_imagetoblob_stdout(value image_bloc)
+imper_imagetoblob_channel_jpeg(value image_bloc, value chan)
 {
-    CAMLparam1( image_bloc );
+    CAMLparam2(image_bloc, chan);
 
     ImageInfo
         *image_info;
@@ -6681,40 +6688,19 @@ imper_imagetoblob_stdout(value image_bloc)
     GetExceptionInfo(&exception);
     image_info = CloneImageInfo((ImageInfo *) NULL) ;
 
+    strcpy(((Image *) Field(image_bloc,1))->magick, "JPEG");
+
     blob_data = ImageToBlob(
                     image_info,
                     (Image *) Field(image_bloc,1),
                     &blob_size,
                     &exception );
 
-    /*
-    printf("%s", blob_data ); fflush(stdout);
-    fputs(blob_data, stdout); fflush(stdout);
-    */
-
-    /*
-    unsigned long i;
-    for (i=0; i < blob_size; i++) {
-        //(void) fputc(blob_data[i], stdout);
-        (void) putc(blob_data[i], stdout);
-    }
-    fflush(stdout);
-    */
     if (exception.severity != UndefinedException) {
-
         failwith( exception.reason );
     }
 
-    mime_type = MagickToMime(
-                      ((Image *) Field(image_bloc,1))->magick );
-
-    printf("Content-Type: %s\n"
-           "Content-Length: %d\n"
-           "\n", mime_type, blob_size);
-    /*
-    fwrite(blob_data, 1, blob_size, stdout);
-    */
-    fwrite(blob_data, blob_size, 1, stdout);
+    really_putblock(Channel(chan), blob_data, blob_size);
 
     DestroyImageInfo(image_info);
     DestroyExceptionInfo(&exception);
