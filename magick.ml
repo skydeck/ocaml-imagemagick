@@ -28,6 +28,7 @@
  *
  * }}} *)
 
+open Bigarray
 
 external sizeof_quantum: unit -> int = "im_sizeof_quantum"
 external sizeof_quantum_bit: unit -> int = "im_sizeof_quantum_bit"
@@ -64,7 +65,7 @@ external display : image_handle -> unit  = "im_displayimages"
 (* blobs *)
 
 external image_to_channel : image_handle -> out_channel -> unit  = "imper_imagetoblob_channel"
-external blob_of_image : image_handle -> string  = "imper_imagetoblob_bytes"
+external blob_of_image : image_handle -> (int, int8_unsigned_elt, c_layout) Genarray.t  = "imper_imagetoblob_bytes"
 
 
 (* get infos on images *)

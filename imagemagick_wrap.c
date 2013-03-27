@@ -6789,8 +6789,7 @@ imper_imagetoblob_bytes(value image_bloc)
         failwith( exception.reason );
     }
 
-    byte_array = caml_alloc_string(blob_size);
-    memcpy( String_val(byte_array), blob_data, blob_size );
+    byte_array = alloc_bigarray_dims(BIGARRAY_UINT8 | BIGARRAY_C_LAYOUT, 1, blob_data, blob_size);
 
     DestroyImageInfo(image_info);
     DestroyExceptionInfo(&exception);

@@ -14,7 +14,10 @@ external write_image : image_handle -> filename:string -> unit
 external display : image_handle -> unit = "im_displayimages"
 external image_to_channel : image_handle -> out_channel -> unit
   = "imper_imagetoblob_channel"
-external blob_of_image : image_handle -> string = "imper_imagetoblob_bytes"
+external blob_of_image :
+  image_handle ->
+  (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Genarray.t
+  = "imper_imagetoblob_bytes"
 external get_image_width : image_handle -> int = "imper_getimagewidth"
 external get_image_height : image_handle -> int = "imper_getimageheight"
 external get_image_depth : image_handle -> int = "imper_getimagedepth"
