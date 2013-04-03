@@ -561,7 +561,7 @@ let string_of_composite_operator comp_op =
   | Threshold   -> "Threshold"
   | Xor         -> "Xor"
 
-
+external get_channel_statistics  : image_handle -> channel:channel_type -> float * float * float * float * float * float  = "imper_get_channel_statistics"
 
 (* }}} *)
 

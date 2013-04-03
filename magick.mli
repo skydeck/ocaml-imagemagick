@@ -154,6 +154,10 @@ type composite_operator =
 val composite_operator_of_string : string -> composite_operator
 val composite_operator_of_string' : string -> composite_operator
 val string_of_composite_operator : composite_operator -> string
+external get_channel_statistics :
+  image_handle ->
+  channel:channel_type -> float * float * float * float * float * float
+  = "imper_get_channel_statistics"
 module Imper :
   sig
     external plasma_image :

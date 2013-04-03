@@ -1348,6 +1348,90 @@ imper_ping_image(value input_image_name)
 }
 /* }}} */
 
+/* {{{ ChannelType_val() */
+
+static int
+ChannelType_val( value param )
+{
+#if CAML_FRAME
+    CAMLparam1 (param);
+#endif
+
+#if TYPE_CHECKING
+    assert (Is_long (param));
+#endif
+
+#if DEBUG
+    printf(" ChannelType_val(%d)\n", Int_val(param)); fflush(stdout);
+#endif
+
+    switch (Int_val (param))
+      {
+        case  0: return UndefinedChannel;
+        case  1: return RedChannel;
+        case  2: return GrayChannel;
+        case  3: return CyanChannel;
+        case  4: return GreenChannel;
+        case  5: return MagentaChannel;
+        case  6: return BlueChannel;
+        case  7: return YellowChannel;
+        case  8: return AlphaChannel;
+        case  9: return OpacityChannel;
+        case 10: return BlackChannel;
+        case 11: return IndexChannel;
+        case 12: return AllChannels;
+        case 13: return DefaultChannels;
+        default:
+#if DEBUG
+            fprintf(stderr, " Error in ChannelType_val()\n"); fflush(stderr);
+            abort();
+#else
+            fprintf(stderr, "OCaml-ImageMagick Warning: channel_type unrecognized, set to DefaultChannels\n"); fflush(stderr);
+            return DefaultChannels;
+#endif
+      }
+}
+
+/* {{{ imper_get_channel_statistics() 
+ *
+ * ChannelStatistics *GetImageChannelStatistics(const Image *image, ExceptionInfo *exception)
+ */
+
+CAMLprim value
+imper_get_channel_statistics(value image_bloc, value channel)
+{
+    CAMLparam2( image_bloc, channel );
+    CAMLlocal1( statistics_tuple );
+
+    ExceptionInfo
+        exception;
+
+    ChannelStatistics
+      *channel_statistics;
+
+    GetExceptionInfo(&exception);
+    channel_statistics = GetImageChannelStatistics(
+                        (Image *) Field(image_bloc,1),
+                        &exception );
+
+    if (exception.severity != UndefinedException) {
+        failwith( exception.reason );
+    }
+
+    DestroyExceptionInfo(&exception);
+
+    statistics_tuple = alloc_tuple(6);
+
+    ChannelType i = ChannelType_val(channel);
+    Store_field(statistics_tuple, 0, caml_copy_double( channel_statistics[i].minima ) );
+    Store_field(statistics_tuple, 1, caml_copy_double( channel_statistics[i].maxima ) );
+    Store_field(statistics_tuple, 2, caml_copy_double( channel_statistics[i].mean ) );
+    Store_field(statistics_tuple, 3, caml_copy_double( channel_statistics[i].standard_deviation ) );
+    Store_field(statistics_tuple, 4, caml_copy_double( channel_statistics[i].kurtosis ) );
+    Store_field(statistics_tuple, 5, caml_copy_double( channel_statistics[i].skewness ) );
+
+    CAMLreturn( statistics_tuple );
+}
 
 /* {{{ @NOTICE:  
    the getnumbercolors and getimagehistogram have been swapped
